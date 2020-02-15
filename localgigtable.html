@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+		<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,900,400italic|Source+Code+Pro:400' rel='stylesheet' type='text/css'>
+		<script type="text/javascript" src="./tabletop.js"></script>
+		<script type='text/javascript' src='./sheetsee.js-master/js/sheetsee.js'></script>
+
+		<link rel='stylesheet' type='text/css' href='./sheetsee.js-master/assets/style.css'>
+	</head>
+
+	<style>
+	.tHeader {cursor: pointer; white-space:nowrap; }
+
+	th, td
+	{
+		padding: 8px;
+		text-align: left;
+	}
+
+	th
+	{
+	  background: white;
+	  position: sticky;
+	  top: 0;
+	}
+	</style>
+
+	<body >
+		<div >
+			<div id="bandGigTable"></div>
+			<div id="allGigTable"></div>
+			<div id="engineerGigTable"></div>
+		</div>
+		<script id="engineerGigTable_template" type="text/html">
+			<table>
+				<tr><th class="tHeader" id="C1" width="105">Date</th><th class="tHeader" id="C2" width="90">Band</th><th class="tHeader" id="C3" >Venue</th>
+				<th class="tHeader" id="C4">Location</th><th>Band Times</th><th>Lineup Notes</th><th>Notes</th></tr>
+				{{#rows}}
+				<tr><td width="105">{{Date}}</td><td width="90">{{Band}}</td><td>{{Venue}}</td><td>{{Location_}}</td><td>{{Band Times}}</td>
+				<td>{{Lineup Notes}}</td>
+				<td>{{Notes}}</td></tr>
+				{{/rows}}
+			</table>
+		</script>
+
+		<script id="allGigTable_template" type="text/html">
+			<table><thead >
+				<tr><th class="tHeader" id="C1" width="90">Date</th><th class="tHeader" id="C2" width="90">Band</th><th class="tHeader" id="C3" width="70">A1</th><th class="tHeader" id="C4">Venue</th><th class="tHeader" id="C5">Location</th><th>Band Times</th><th>Notes</th></tr>
+				</thead>
+				<tbody >
+				{{#rows}}
+				<tr><td width="100">{{Date}}</td><td width="90">{{Band}}</td><td width="70">{{A1}}</td><td>{{Venue}}</td><td>{{Location_}}</td><td>{{Band Times}}</td><td>{{Notes}}</td></tr>
+				{{/rows}}
+			</tbody></table>
+		</script>
+
+		<script id="bandGigTable_template" type="text/html">
+			<table>
+				<tr><th class="tHeader" id="C1" width="100">Date</th><th class="tHeader" id="C2" width="90" id="A1Header">A1</th><th class="tHeader" id="C3">Venue</th><th class="tHeader" id="C4">Location</th><th>Band Times</th><th>Notes</th></tr>
+				{{#rows}}
+				<tr><td width="100">{{Date}}</td><td width="90">{{A1}}</td><td>{{Venue}}</td><td>{{Location_}}</td><td>{{Band Times}}</td><td>{{Notes}}</td></tr>
+				{{/rows}}
+			</table>
+		</script>
+
+
+		<script type="text/javascript">
+			document.addEventListener
+				(
+				'DOMContentLoaded',
+				function()
+					{
+					var URL = "1-jrq9KsAtt1df0RxspI5HsjQCJPQrQPuvTrDgAVmgP0"	// this is the file '2020Master'
+					Tabletop.init({key: URL, callback: showInfo, simpleSheet: false});
+
+					}
+				);
+
+			var sortState={};
+			sortState.columnID = '';
+			sortState.direction='';
+
+			function highlightColumnHeader(event)
+			{
+				if (!sortState.direction || sortState.direction == 'descending')
+					sortState.direction='ascending';
+				else
+					sortState.direction='descending';
+
+				if (sortState.columnID != event.target.id)
+				{
+					//unhiglight old column
+					if (sortState.columnID)
+						document.getElementById(sortState.columnID).style.color = "black";
+
+					sortState.columnID = event.target.id;
+ 				}
+
+				document.getElementById(sortState.columnID).style.color = "blue"; // have to re-set color even if column didn't change
+
+
+			}
+
+			var currentData=[];
+
+			function showInfo (allData)
+				{
+				var passedParm = new URLSearchParams(location.search);
+				var whichEng = passedParm.get('engineer');
+				var whichBand = passedParm.get('band');
+				var data = allData['2020Master'].elements;
+
+				if (whichEng)
+					{
+					if (whichEng == "NONE")
+						 whichEng = '';
+					var myData = Sheetsee.getMatches(data, whichEng, "A1");
+					var myTemplate = "#engineerGigTable";
+					}
+				else if (whichBand)
+					{
+					var myData = Sheetsee.getMatches(data, whichBand, "Band");
+					var myTemplate = "#bandGigTable";
+					}
+				else
+					{
+					myData = data;
+					var myTemplate = "#allGigTable";
+					}
+				var myCurrentData = myDateMatch(myData, "Date");
+				myData = myCurrentData;
+
+				var tableOptions = {
+					"data": myData,
+					"tableDiv": myTemplate,
+					}
+				currentData = myData;	// keep it around in a global.
+
+				Sheetsee.makeTable(tableOptions);
+
+				document.body.addEventListener //add my event listener after so sheetsee listener runs first
+					(
+					'click',
+					function (event)
+						{
+						if (event.target.classList.contains('tHeader'))
+							highlightColumnHeader(event);
+						else if (event.target.nodeName == "TD")
+							clickRow(event);
+						}
+					);
+
+				var firstRow = myData[0].ROWNUM_;
+
+			 	var theDoc = parent.document;
+
+				var findTheButton = theDoc.getElementById("next-gig-button");
+				findTheButton.href="./showonegig.html?ROWNUM="+firstRow;
+				}
+
+
+			function clickRow(event)
+				{
+				var whichRecord = currentData[event.target.parentNode.rowIndex-1].ROWNUM_
+				window.parent.location = "./showonegig.html?ROWNUM="+whichRecord; // because we're inside an iframe
+				}
+
+			function myDateMatch (data, column)
+				{
+				var matches = []
+				var d = new Date();
+				d.setHours(-1);		//	set to yesterday.
+				var cutoff = d.getTime();
+				data.forEach(function (element)
+					{
+					if (Date.parse(element[column]) >cutoff ) matches.push(element)
+					})
+				return matches
+				}
+
+
+		</script>
+	</body>
+</html>

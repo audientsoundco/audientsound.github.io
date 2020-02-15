@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=2.0, user-scalable=yes" />
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<title>your next gig &#8211; audient schedule</title>
+<meta name='robots' content='noindex,nofollow' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<link rel='dns-prefetch' href='//s.w.org' />
+
+	<link rel='stylesheet' id='wp-block-library-css'  href='./../wp-includes/css/dist/block-library/style.min.css?ver=5.3.2' type='text/css' media='all' />
+<link rel='stylesheet' id='kimbo-open-sans-css'  href='https://fonts.googleapis.com/css?family=Open+Sans%3A300%2C400%2C600%2C700%2C800&#038;subset=latin%2Clatin-ext' type='text/css' media='all' />
+<link rel='stylesheet' id='animate-css'  href='./../wp-content/themes/kimbo-lite/animate.css?ver=1' type='text/css' media='screen' />
+<link rel='stylesheet' id='genericons-css'  href='./../wp-content/themes/kimbo-lite/genericons/genericons.css?ver=3.0.3' type='text/css' media='all' />
+<link rel='stylesheet' id='kimbo-style-css'  href='./../wp-content/themes/kimbo-lite/style.css?ver=5.3.2' type='text/css' media='all' />
+<style id='kimbo-style-inline-css' type='text/css'>
+h1.site-title, h2.site-description  {
+                                color: #303030;
+                        }
+</style>
+<script type='text/javascript' src='./../wp-includes/js/jquery/jquery.js?ver=1.12.4-wp'></script>
+<script type='text/javascript' src='./../wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1'></script>
+
+<style type="text/css" id="wp-custom-css">
+			#greybar { padding: 0px 5%; }
+			#myHeader h1 a, #myHeader h1 { margin-top: 15px; }
+
+			/* override where it sets logo to 50% on mobile*/
+			/*	#logo { width: 95%; }
+			*/
+			#contentwrapper
+			{
+				width: 90%;
+				margin-left: 5%;
+				margin-top: 20px;
+			}
+
+			#greybar
+			{
+				width: 99%;
+				padding-left: 0px;
+			}
+
+			h1.entry-title
+			{
+				font-size: min(36px, 6vw);
+				display: inline;
+				padding-left: 5%;
+				vertical-align: middle;
+			}
+
+			/* for the "show gig" button */
+			.maxbutton-1
+			{
+				float: right;
+				margin-top: 8px;
+				font-weight: bold;
+			}
+
+			/* maintain 2 columns on main page for narrow screens */
+
+			@media (max-width:599px)
+			{
+				.wp-block-column { flex-basis: 10%!important; }
+			}	</style>
+		</head>
+
+<body class="page-template page-template-template-fullwidth-onegig page-template-template-fullwidth-onegig-php page ">
+	<div id="container">
+		<div id="myheader">
+  					        				<a href="../index.html" rel="home">
+        					<h1 class="site-title">audient schedule</h1>
+        				</a>
+
+                        <h2 class="site-description">Let&#039;s Work Smarter, Not Dumber</h2>
+       </div>
+<div id="greybar">
+	<h1 class="entry-title">
+        your next gig
+      </h1>
+
+</div>
+
+<div id="contentwrapper">
+  <div id="contentfull">
+        <div class="post">
+
+<script type="text/javascript" src="./tabletop.js"></script>
+
+<script type="text/javascript">
+	function init()
+	{
+		Tabletop.init( { key: "https://docs.google.com/spreadsheets/d/1-jrq9KsAtt1df0RxspI5HsjQCJPQrQPuvTrDgAVmgP0/edit?usp=sharing",
+                       	 callback: showInfo,
+                         simpleSheet: false } );
+	}
+
+	window.addEventListener('DOMContentLoaded', init)
+
+    function showInfo(allData)
+    {
+		var passedParm = new URLSearchParams(location.search);
+		var whichRow = passedParm.get('ROWNUM');
+		if (!whichRow) whichRow =2;
+		whichRow = whichRow-2; // 0 based, and no header row
+		var data = allData['2020Master'].elements;
+		var theRecord = data[whichRow];
+		var theTable = document.getElementById("gigInfoTable")
+
+		for (var key in theRecord )
+		{
+			if (theRecord[key] && key[key.length-1] != "_") //don't display fields with trailing "_"
+				{
+				var theRow = theTable.insertRow(-1);
+				var theCaptionCell = theRow.insertCell(0);
+				theCaptionCell.id="caption"
+				theCaptionCell.innerHTML= "<h3>"+key+"</h3>";
+				theCaptionCell.width=120;
+				var theCell = theRow.insertCell(1);
+
+// playback link handling- if column header starts with "playback", then find corresponding field with the URL by adding " link_" to key. (the link field will not be displayed bc of trailing "_")
+				if (key.substring(0, 8) == "playback")
+				{
+					var linkField = key+" link_";
+					theCell.innerHTML= "<h4> <a href=\""+theRecord[linkField]+"\" target=\"_blank\">"+theRecord[key]+"</a></h4>";
+				}
+				else if (key[key.length-1] == "#")	// phone link handling
+				{
+					var theCellContents = "<h4> <a href=\"tel:"+theRecord[key]+"\"> "
+					theCellContents += theRecord[key];
+					theCellContents +="</a>";
+
+					// add sms link with graphic
+					theCellContents +=" <a href=\"sms:"+theRecord[key]+"\"> <img src=\"../graphics/small-sms-icon.png\">  </a></h4>"
+					theCell.innerHTML= theCellContents;
+
+				}
+				else if (key == "Address")
+					theCell.innerHTML= "<h4> <a href=\"https://maps.google.com/maps?q="+theRecord[key]+"\">"+theRecord[key]+"</a></h4>";
+				else if (key.substring(0, 7) == "caption")	//	display pics
+				{									// slightly different - use cell contents for caption (left column)
+					var linkField = key+" link_";
+					theCaptionCell.innerHTML= "<h3>"+theRecord[key]+"</h3>";
+					theCell.innerHTML = "<img src=\""+theRecord[linkField]+"\">";
+				}
+				else
+					theCell.innerHTML= "<h4>"+theRecord[key]+"</h4>";
+				}
+		}
+    }
+</script>
+<style>
+#gigInfoTable {
+background-color: #bffffd;
+}
+
+#gigInfoTable h3, #gigInfoTable h4 {
+margin-top: 0;
+}
+
+#gigInfoTable td {
+padding-right: 5px;
+vertical-align: text-top;
+}
+
+#caption {
+text-align: right;
+}
+</style>
+<table id="gigInfoTable"></table>
+        </div>
+      </div>
+</div>
+
+
+</div>
+</body>
+<script type='text/javascript' src='./../wp-content/themes/kimbo-lite/js/reaktion.js?ver=5.3.2'></script>
+<script type='text/javascript' src='./../wp-content/themes/kimbo-lite/js/superfish.js?ver=5.3.2'></script>
+<script type='text/javascript' src='./../wp-content/themes/kimbo-lite/js/wow.js?ver=5.3.2'></script>
+<script type='text/javascript' src='./../wp-includes/js/wp-embed.min.js?ver=5.3.2'></script>
+</html>
